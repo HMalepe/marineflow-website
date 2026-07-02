@@ -3,22 +3,22 @@
 import { Environment } from "@react-three/drei";
 import type { Group } from "three";
 import type { MutableRefObject } from "react";
-import { ScrollRazorGroup } from "./StraightRazor";
+import { ScrollBarberPoleGroup } from "./BarberPole";
 import { HeroLighting } from "./shared/HeroLighting";
 import { HeroPostEffects } from "./shared/HeroPostEffects";
 import { useIsMobile } from "./shared/useIsMobile";
 
-type RazorSceneProps = {
+type BarberPoleSceneProps = {
   scrollGroupRef: MutableRefObject<Group | null>;
-  scrollProgressRef: MutableRefObject<number>;
+  stripeSpeedRef: MutableRefObject<number>;
   onMeshReady: () => void;
 };
 
-export function RazorScene({
+export function BarberPoleScene({
   scrollGroupRef,
-  scrollProgressRef,
+  stripeSpeedRef,
   onMeshReady,
-}: RazorSceneProps) {
+}: BarberPoleSceneProps) {
   const isMobile = useIsMobile();
 
   return (
@@ -26,9 +26,9 @@ export function RazorScene({
       <HeroLighting />
       <Environment preset="studio" />
 
-      <ScrollRazorGroup
+      <ScrollBarberPoleGroup
         scrollGroupRef={scrollGroupRef}
-        scrollProgressRef={scrollProgressRef}
+        stripeSpeedRef={stripeSpeedRef}
         onMeshReady={onMeshReady}
       />
 

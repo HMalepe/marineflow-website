@@ -1,11 +1,11 @@
 import { Header } from "@/components/Header";
-import { HeroRazor3D } from "@/components/hero/HeroRazor3D";
+import { HeroBarberPole3D } from "@/components/hero/HeroBarberPole3D";
 
 export default function Home() {
   return (
     <main className="min-h-screen">
       <Header />
-      <HeroRazor3D />
+      <HeroBarberPole3D />
       {/* Scroll target below pin — enables 150vh choreography */}
       <section
         id="services"
