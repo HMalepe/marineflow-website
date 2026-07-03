@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { WILD_SHOWCASE_CARDS } from '../data/wildShowcase'
 import { gsap, ScrollTrigger } from '../lib/gsap'
+import { refreshScrollTriggers } from '../lib/scrollTriggerLifecycle'
 import { usePrefersReducedMotion } from '../providers/SmoothScroll'
 import { BeforeAfterCard, VideoCreatorCard } from './WildShowcaseCard'
 
@@ -38,6 +39,8 @@ export function InTheWild() {
         once: true,
       })
     }, section)
+
+    requestAnimationFrame(() => refreshScrollTriggers())
 
     return () => ctx.revert()
   }, [reducedMotion])

@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { DESK_BG } from '../lib/assets'
-import { gsap, ScrollTrigger } from '../lib/gsap'
+import { gsap } from '../lib/gsap'
+import { refreshScrollTriggers } from '../lib/scrollTriggerLifecycle'
 import { usePrefersReducedMotion } from '../providers/SmoothScroll'
 import '../pinned-scene.css'
 
@@ -153,7 +154,7 @@ export function PinnedScene() {
         gsap.set(sketch, { autoAlpha: 1, scale: 1 })
         gsap.set(thumbs, { autoAlpha: 1, scale: 1 })
         gsap.set(outlines, { '--draw': '100%' } as gsap.TweenVars)
-        requestAnimationFrame(() => ScrollTrigger.refresh())
+        requestAnimationFrame(() => refreshScrollTriggers())
         return
       }
 
@@ -216,25 +217,23 @@ export function PinnedScene() {
         )
     }, root)
 
-    requestAnimationFrame(() => ScrollTrigger.refresh())
+    requestAnimationFrame(() => refreshScrollTriggers())
 
-    const onResize = () => ScrollTrigger.refresh()
-    window.addEventListener('resize', onResize)
-
-    return () => {
-      window.removeEventListener('resize', onResize)
-      ctx.revert()
-    }
+    return () => ctx.revert()
   }, [reducedMotion])
+
+  const trackClass = reducedMotion
+    ? 'relative min-h-screen w-full'
+    : 'relative h-[540vh] w-full'
 
   return (
     <section
       ref={root}
-      className="relative min-h-[540vh] w-full"
+      className={trackClass}
       aria-label="Phone morphs into AI generation canvas"
     >
       <div
-        className="pin-target sticky top-0 isolate flex h-screen w-full items-center justify-center overflow-hidden bg-cover bg-center"
+        className="pin-target isolate flex h-screen w-full items-center justify-center overflow-hidden bg-cover bg-center"
         style={{ backgroundImage: `url('${DESK_BG}')` }}
       >
         <div className="phone relative z-10 aspect-[316/587] h-[70vh] max-h-[640px] rounded-[2.5rem] border-[10px] border-black bg-black shadow-2xl will-change-transform">
@@ -266,7 +265,9 @@ export function PinnedScene() {
             <img
               src="/pinned/sketch.svg"
               alt="Sketch of a sneaker"
-              className="h-[min(46vh,360px)] w-auto"
+              className="h-[min(46vh,360px)] w-auto max-w-full"
+              loading="lazy"
+              decoding="async"
             />
           </div>
 

@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { TOOL_CARDS } from '../data/toolsCards'
 import { gsap, ScrollTrigger } from '../lib/gsap'
+import { refreshScrollTriggers } from '../lib/scrollTriggerLifecycle'
 import { usePrefersReducedMotion } from '../providers/SmoothScroll'
 import { ToolCard } from './ToolCard'
 
@@ -38,6 +39,8 @@ export function ToolsGrid() {
         once: true,
       })
     }, section)
+
+    requestAnimationFrame(() => refreshScrollTriggers())
 
     return () => ctx.revert()
   }, [reducedMotion])

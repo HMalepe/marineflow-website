@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { ScrollTrigger, finalizeScrollTriggers } from '../lib/gsap'
+import { bindScrollTriggerLifecycle } from '../lib/scrollTriggerLifecycle'
 
 const ReducedMotionContext = createContext(false)
 const LenisContext = createContext<Lenis | null>(null)
@@ -35,6 +36,11 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
   const rafIdRef = useRef(0)
 
   useEffect(() => {
+    const unbindLifecycle = bindScrollTriggerLifecycle()
+    return unbindLifecycle
+  }, [])
+
+  useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
 
     const updateMotion = () => {
@@ -46,6 +52,7 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
       )
 
       if (prefersReduced) {
+        document.documentElement.removeAttribute('data-lenis-active')
         finalizeScrollTriggers()
         ScrollTrigger.refresh()
       }
@@ -58,56 +65,69 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
 
   useEffect(() => {
     if (reducedMotion) {
+      document.documentElement.removeAttribute('data-lenis-active')
       ScrollTrigger.refresh()
       return
     }
 
-    const lenis = new Lenis({
-      lerp: 0.1,
-      smoothWheel: true,
-    })
+    let lenis: Lenis | null = null
 
-    lenisRef.current = lenis
-    setLenisInstance(lenis)
+    try {
+      lenis = new Lenis({
+        lerp: 0.1,
+        smoothWheel: true,
+      })
 
-    lenis.on('scroll', ScrollTrigger.update)
+      lenisRef.current = lenis
+      setLenisInstance(lenis)
+      document.documentElement.setAttribute('data-lenis-active', 'true')
 
-    ScrollTrigger.scrollerProxy(document.documentElement, {
-      scrollTop(value) {
-        if (arguments.length && typeof value === 'number') {
-          lenis.scrollTo(value, { immediate: true })
-        }
-        return lenis.scroll
-      },
-      getBoundingClientRect() {
-        return {
-          top: 0,
-          left: 0,
-          width: window.innerWidth,
-          height: window.innerHeight,
-        }
-      },
-      pinType: document.documentElement.style.transform ? 'transform' : 'fixed',
-    })
+      lenis.on('scroll', ScrollTrigger.update)
 
-    const onRefresh = () => lenis.resize()
-    ScrollTrigger.addEventListener('refresh', onRefresh)
+      ScrollTrigger.scrollerProxy(document.documentElement, {
+        scrollTop(value) {
+          if (arguments.length && typeof value === 'number') {
+            lenis!.scrollTo(value, { immediate: true })
+          }
+          return lenis!.scroll
+        },
+        getBoundingClientRect() {
+          return {
+            top: 0,
+            left: 0,
+            width: window.innerWidth,
+            height: window.innerHeight,
+          }
+        },
+        pinType: document.documentElement.style.transform
+          ? 'transform'
+          : 'fixed',
+      })
 
-    const raf = (time: number) => {
-      lenis.raf(time)
+      const onRefresh = () => lenis?.resize()
+      ScrollTrigger.addEventListener('refresh', onRefresh)
+
+      const raf = (time: number) => {
+        lenis!.raf(time)
+        rafIdRef.current = requestAnimationFrame(raf)
+      }
+
       rafIdRef.current = requestAnimationFrame(raf)
-    }
+      ScrollTrigger.refresh()
 
-    rafIdRef.current = requestAnimationFrame(raf)
-    ScrollTrigger.refresh()
-
-    return () => {
-      cancelAnimationFrame(rafIdRef.current)
-      ScrollTrigger.removeEventListener('refresh', onRefresh)
-      ScrollTrigger.scrollerProxy(document.documentElement, {})
-      lenis.destroy()
-      lenisRef.current = null
-      setLenisInstance(null)
+      return () => {
+        cancelAnimationFrame(rafIdRef.current)
+        ScrollTrigger.removeEventListener('refresh', onRefresh)
+        ScrollTrigger.scrollerProxy(document.documentElement, {})
+        lenis!.destroy()
+        lenisRef.current = null
+        setLenisInstance(null)
+        document.documentElement.removeAttribute('data-lenis-active')
+      }
+    } catch {
+      document.documentElement.removeAttribute('data-lenis-active')
+      ScrollTrigger.refresh()
+      return undefined
     }
   }, [reducedMotion])
 

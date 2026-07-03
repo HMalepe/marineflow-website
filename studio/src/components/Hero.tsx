@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import { DESK_BG } from '../lib/assets'
 import { gsap } from '../lib/gsap'
+import { refreshScrollTriggers } from '../lib/scrollTriggerLifecycle'
 import { usePrefersReducedMotion } from '../providers/SmoothScroll'
 
 function AppleIcon() {
@@ -140,6 +141,10 @@ export function Hero() {
 
     return () => ctx.revert()
   }, [reducedMotion])
+
+  useLayoutEffect(() => {
+    requestAnimationFrame(() => refreshScrollTriggers())
+  }, [])
 
   return (
     <section className="relative min-h-screen bg-paper pt-[140px]">

@@ -5,11 +5,21 @@
 @layer base {
   html {
     @apply antialiased;
+    overflow-x: clip;
+  }
+
+  html:not([data-reduced-motion]):not([data-lenis-active]) {
+    scroll-behavior: smooth;
   }
 
   body {
     @apply bg-paper font-sans text-ink;
     font-size: 16px;
+    overflow-x: clip;
+  }
+
+  #root {
+    width: 100%;
     overflow-x: clip;
   }
 
@@ -19,6 +29,11 @@
 
   a {
     @apply transition-colors duration-200;
+  }
+
+  img,
+  video {
+    max-width: 100%;
   }
 }
 
@@ -40,7 +55,15 @@
   }
 
   .btn-lime {
-    @apply inline-flex items-center justify-center rounded-full bg-lime px-6 py-3 text-sm font-bold text-ink transition hover:scale-[1.03] hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink;
+    @apply inline-flex items-center justify-center rounded-full bg-lime px-6 py-3 text-sm font-bold text-ink transition hover:scale-[1.03] hover:brightness-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink motion-reduce:hover:scale-100;
+  }
+
+  .text-on-coral {
+    @apply text-ink;
+  }
+
+  .text-on-lime {
+    @apply text-ink;
   }
 }
 
