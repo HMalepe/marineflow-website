@@ -1,32 +1,73 @@
-const CASES = [
-  { title: 'Product launch', tag: 'Pin + scrub' },
-  { title: 'Agency reel', tag: 'Parallax' },
-  { title: 'Editorial story', tag: 'Split text' },
-] as const
+import { useLayoutEffect, useRef } from 'react'
+import { WILD_SHOWCASE_CARDS } from '../data/wildShowcase'
+import { gsap, ScrollTrigger } from '../lib/gsap'
+import { usePrefersReducedMotion } from '../providers/SmoothScroll'
+import { BeforeAfterCard, VideoCreatorCard } from './WildShowcaseCard'
 
 export function InTheWild() {
-  return (
-    <section id="wild" className="bg-ink py-28 text-paper">
-      <div className="mx-auto max-w-6xl px-6">
-        <p className="section-eyebrow mb-4 text-coral">Showcase</p>
-        <h2 className="text-display">In the wild</h2>
-        <p className="mt-5 max-w-lg text-base leading-relaxed text-paper/60">
-          Case studies and live references will populate this band.
-        </p>
+  const sectionRef = useRef<HTMLElement>(null)
+  const reducedMotion = usePrefersReducedMotion()
 
-        <ul className="mt-14 grid gap-4 sm:grid-cols-3">
-          {CASES.map((item) => (
-            <li
-              key={item.title}
-              className="rounded-2xl border border-paper/10 bg-paper/5 p-6 backdrop-blur-sm"
-            >
-              <span className="text-xs font-semibold uppercase tracking-widest text-lime">
-                {item.tag}
-              </span>
-              <p className="mt-3 text-lg font-semibold">{item.title}</p>
-            </li>
-          ))}
-        </ul>
+  useLayoutEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+
+    const cards = section.querySelectorAll<HTMLElement>('.wild-card')
+    if (!cards.length) return
+
+    const ctx = gsap.context(() => {
+      if (reducedMotion) {
+        gsap.set(cards, { autoAlpha: 1, y: 0 })
+        return
+      }
+
+      gsap.set(cards, { autoAlpha: 0, y: 28 })
+
+      ScrollTrigger.batch(cards, {
+        onEnter: (batch) => {
+          gsap.to(batch, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.7,
+            ease: 'power3.out',
+            stagger: 0.1,
+            overwrite: true,
+          })
+        },
+        start: 'top 85%',
+        once: true,
+      })
+    }, section)
+
+    return () => ctx.revert()
+  }, [reducedMotion])
+
+  return (
+    <section id="wild" ref={sectionRef} className="bg-paper px-6 py-24">
+      <div className="mx-auto max-w-6xl">
+        <header className="mx-auto max-w-3xl text-center">
+          <h2 className="text-display text-ink">Tinker in the wild</h2>
+          <div className="mt-6 text-lg text-neutral-800">
+            <p>See what people are making IRL.</p>
+            <p>Ideas become projects right on your phone.</p>
+          </div>
+          <a
+            href="#"
+            className="mt-8 inline-flex items-center justify-center rounded-full bg-lime px-6 py-3 text-sm font-bold text-ink transition hover:scale-[1.03] hover:brightness-105"
+          >
+            Get the app
+          </a>
+        </header>
+
+        <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-2">
+          {WILD_SHOWCASE_CARDS.map((card) =>
+            card.type === 'video' ? (
+              <VideoCreatorCard key={card.id} card={card} />
+            ) : (
+              <BeforeAfterCard key={card.id} card={card} />
+            ),
+          )}
+        </div>
       </div>
     </section>
   )
