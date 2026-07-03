@@ -7,6 +7,7 @@ export default {
     extend: {
       colors: {
         lime: '#CCE600',
+        'lime-dark': '#B8CE00',
         coral: '#FF5C54',
         offwhite: '#E9E9E9',
         ink: '#000000',
