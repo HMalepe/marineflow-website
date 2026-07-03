@@ -1,44 +1,73 @@
-const TOOLS = [
-  {
-    name: 'GSAP',
-    desc: 'Timeline choreography for scroll-linked motion.',
-    accent: 'bg-lime',
-  },
-  {
-    name: 'ScrollTrigger',
-    desc: 'Pin, scrub, and snap sections to the viewport.',
-    accent: 'bg-coral',
-  },
-  {
-    name: 'Lenis',
-    desc: 'Buttery smooth scrolling synced with GSAP.',
-    accent: 'bg-ink',
-  },
-] as const
+import { useLayoutEffect, useRef } from 'react'
+import { TOOL_CARDS } from '../data/toolsCards'
+import { gsap, ScrollTrigger } from '../lib/gsap'
+import { usePrefersReducedMotion } from '../providers/SmoothScroll'
+import { ToolCard } from './ToolCard'
 
 export function ToolsGrid() {
-  return (
-    <section id="tools" className="mx-auto max-w-6xl px-6 py-28">
-      <p className="section-eyebrow mb-4">Stack</p>
-      <h2 className="text-display">Tools</h2>
-      <p className="section-copy mt-5">
-        The motion layer is wired — each card is a slot for deeper demos.
-      </p>
+  const sectionRef = useRef<HTMLElement>(null)
+  const reducedMotion = usePrefersReducedMotion()
 
-      <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {TOOLS.map((tool) => (
-          <article
-            key={tool.name}
-            className="group rounded-3xl border border-offwhite bg-paper p-8 transition hover:-translate-y-1 hover:border-ink/10 hover:shadow-[0_20px_60px_-30px_rgba(0,0,0,0.2)]"
+  useLayoutEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+
+    const cards = section.querySelectorAll<HTMLElement>('.tool-card')
+    if (!cards.length) return
+
+    const ctx = gsap.context(() => {
+      if (reducedMotion) {
+        gsap.set(cards, { autoAlpha: 1, y: 0 })
+        return
+      }
+
+      gsap.set(cards, { autoAlpha: 0, y: 24 })
+
+      ScrollTrigger.batch(cards, {
+        onEnter: (batch) => {
+          gsap.to(batch, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.65,
+            ease: 'power3.out',
+            stagger: 0.08,
+            overwrite: true,
+          })
+        },
+        start: 'top 85%',
+        once: true,
+      })
+    }, section)
+
+    return () => ctx.revert()
+  }, [reducedMotion])
+
+  return (
+    <section
+      id="tools"
+      ref={sectionRef}
+      className="bg-paper px-6 py-24"
+    >
+      <div className="mx-auto max-w-7xl">
+        <header className="mx-auto max-w-3xl text-center">
+          <h2 className="text-display text-ink">Tools or toys? Both.</h2>
+          <div className="mt-6 text-lg text-neutral-800">
+            <p>Make videos, images, 3D models, comics,</p>
+            <p>or anything else you dream up.</p>
+          </div>
+          <a
+            href="#"
+            className="mt-8 inline-flex items-center justify-center rounded-full bg-lime px-6 py-3 text-sm font-bold text-ink transition hover:scale-[1.03] hover:brightness-105"
           >
-            <span
-              className={`mb-6 inline-block size-3 rounded-full ${tool.accent}`}
-              aria-hidden
-            />
-            <h3 className="text-xl font-bold tracking-tight">{tool.name}</h3>
-            <p className="mt-3 text-sm leading-relaxed text-ink/60">{tool.desc}</p>
-          </article>
-        ))}
+            Get the app
+          </a>
+        </header>
+
+        <div className="mt-16 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 lg:auto-rows-[minmax(140px,1fr)]">
+          {TOOL_CARDS.map((card) => (
+            <ToolCard key={card.id} card={card} />
+          ))}
+        </div>
       </div>
     </section>
   )
