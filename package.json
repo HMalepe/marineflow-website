@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "postinstall": "npm install --prefix studio",
     "dev": "next dev",
     "dev:studio": "npm run dev --prefix studio",
     "build": "npm run build:all",
