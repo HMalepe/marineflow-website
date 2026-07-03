@@ -29,6 +29,12 @@ export default {
             fontSize: '56px',
           },
         },
+        '.text-hero': {
+          fontSize: 'clamp(3rem, 11vw, 9rem)',
+          lineHeight: '0.95',
+          letterSpacing: '-0.04em',
+          fontWeight: '800',
+        },
       })
     }),
   ],

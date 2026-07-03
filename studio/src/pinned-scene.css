@@ -1,0 +1,32 @@
+@property --draw {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+.outline {
+  position: relative;
+}
+
+.outline::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border: 2px solid #cce600;
+  border-radius: inherit;
+  clip-path: inset(0 calc(100% - var(--draw)) 0 0);
+  pointer-events: none;
+}
+
+/* Full border when custom properties cannot animate (older Safari/Firefox) */
+@supports not (background: paint(id)) {
+  .outline::after {
+    clip-path: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  html[data-reduced-motion] .outline::after {
+    opacity: 1;
+  }
+}
