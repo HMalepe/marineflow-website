@@ -1,11 +1,20 @@
 import { useLayoutEffect, useRef } from 'react'
 import { DESK_BG } from '../lib/assets'
 import { gsap } from '../lib/gsap'
+import {
+  getScrollProfile,
+  pinTypeForScrollMode,
+} from '../lib/scrollConfig'
 import { refreshScrollTriggers } from '../lib/scrollTriggerLifecycle'
-import { usePrefersReducedMotion } from '../providers/SmoothScroll'
+import {
+  usePrefersReducedMotion,
+  useScrollMode,
+  useScrollReady,
+} from '../providers/SmoothScroll'
 import '../pinned-scene.css'
 
-function FeedScreen() {  return (
+function FeedScreen() {
+  return (
     <div className="flex h-full flex-col bg-paper pt-10">
       <div className="px-4">
         <div className="mb-4 flex items-center justify-between">
@@ -122,10 +131,15 @@ function SlideScreen() {
 export function PinnedScene() {
   const root = useRef<HTMLDivElement>(null)
   const reducedMotion = usePrefersReducedMotion()
+  const scrollMode = useScrollMode()
+  const scrollReady = useScrollReady()
 
   useLayoutEffect(() => {
     const el = root.current
-    if (!el) return
+    if (!el || !scrollReady) return
+
+    const profile = getScrollProfile()
+    const { phoneScale } = profile
 
     const ctx = gsap.context(() => {
       const phone = el.querySelector<HTMLElement>('.phone')
@@ -134,13 +148,17 @@ export function PinnedScene() {
       const thumbs = el.querySelectorAll<HTMLElement>('.result-thumb')
       const sketch = el.querySelector<HTMLElement>('.sketch-card')
       const outlines = el.querySelectorAll<HTMLElement>('.outline')
-      const slideChip = el.querySelector<HTMLElement>('.slide-chip')
 
       if (!phone || screens.length < 4 || !canvas || !sketch) return
 
       const [s1, s2, s3, s4] = screens
 
-      gsap.set(phone, { scale: 0.85, yPercent: 8, transformOrigin: '50% 50%' })
+      gsap.set(phone, {
+        scale: phoneScale.start,
+        yPercent: profile.phoneYPercent,
+        transformOrigin: '50% 50%',
+        force3D: true,
+      })
       gsap.set([s2, s3, s4], { autoAlpha: 0 })
       gsap.set(s1, { autoAlpha: 1 })
       gsap.set(canvas, { autoAlpha: 0, scale: 0.94 })
@@ -164,36 +182,33 @@ export function PinnedScene() {
           trigger: el,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: 1,
+          scrub: profile.scrub,
           pin: '.pin-target',
           pinSpacing: true,
           invalidateOnRefresh: true,
-          anticipatePin: 1,
+          anticipatePin: profile.anticipatePin,
+          fastScrollEnd: profile.fastScrollEnd,
+          pinType: pinTypeForScrollMode(scrollMode),
         },
       })
 
-      // Phase 1 (0 → 1): phone rises & scales, feed visible
-      tl.to(phone, { scale: 1.12, yPercent: 0, duration: 1 }, 0)
+      // Phase 1: phone rises & scales, feed visible
+      tl.to(
+        phone,
+        { scale: phoneScale.mid, yPercent: 0, duration: 1 },
+        0,
+      )
 
-      // Phase 2 (1 → 2): feed → Product Generator
+      // Phase 2: feed → Product Generator
       tl.to(s1, { autoAlpha: 0, duration: 0.45 }, 1)
         .to(s2, { autoAlpha: 1, duration: 0.45 }, 1.05)
 
-      // Phase 3 (2 → 3): prompt → Slide to Generate
+      // Phase 3: prompt → Slide to Generate
       tl.to(s2, { autoAlpha: 0, duration: 0.45 }, 2)
         .to(s3, { autoAlpha: 1, duration: 0.45 }, 2.05)
 
-      if (slideChip) {
-        tl.fromTo(
-          slideChip,
-          { x: 0 },
-          { x: 10, yoyo: true, repeat: 1, duration: 0.25, ease: 'power1.inOut' },
-          2.5,
-        )
-      }
-
-      // Phase 4 (3 → 4): expand into dark canvas
-      tl.to(phone, { scale: 1.6, duration: 1 }, 3)
+      // Phase 4: expand into dark canvas
+      tl.to(phone, { scale: phoneScale.end, duration: 1 }, 3)
         .to([s1, s2, s3], { autoAlpha: 0, duration: 0.3 }, 3)
         .to(s4, { autoAlpha: 1, duration: 0.2 }, 3)
         .to(phone, { autoAlpha: 0, duration: 0.4 }, 3.4)
@@ -220,11 +235,11 @@ export function PinnedScene() {
     requestAnimationFrame(() => refreshScrollTriggers())
 
     return () => ctx.revert()
-  }, [reducedMotion])
+  }, [reducedMotion, scrollMode, scrollReady])
 
   const trackClass = reducedMotion
     ? 'relative min-h-screen w-full'
-    : 'relative h-[540vh] w-full'
+    : 'pinned-track relative h-[300vh] w-full md:h-[420vh] lg:h-[540vh]'
 
   return (
     <section
@@ -233,10 +248,10 @@ export function PinnedScene() {
       aria-label="Phone morphs into AI generation canvas"
     >
       <div
-        className="pin-target isolate flex h-screen w-full items-center justify-center overflow-hidden bg-cover bg-center"
+        className="pin-target isolate flex h-[100dvh] min-h-[100svh] w-full items-center justify-center overflow-hidden bg-cover bg-center"
         style={{ backgroundImage: `url('${DESK_BG}')` }}
       >
-        <div className="phone relative z-10 aspect-[316/587] h-[70vh] max-h-[640px] rounded-[2.5rem] border-[10px] border-black bg-black shadow-2xl will-change-transform">
+        <div className="phone relative z-10 aspect-[316/587] h-[58vh] max-h-[520px] w-auto rounded-[2.5rem] border-[10px] border-black bg-black shadow-2xl will-change-transform sm:h-[65vh] sm:max-h-[580px] md:h-[70vh] md:max-h-[640px]">
           <div className="absolute left-1/2 top-3 z-20 h-5 w-24 -translate-x-1/2 rounded-full bg-black" />
 
           <div className="absolute inset-0 overflow-hidden rounded-[1.9rem]">
@@ -261,35 +276,35 @@ export function PinnedScene() {
             backgroundSize: '26px 26px',
           }}
         >
-          <div className="sketch-card outline absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-4 shadow-2xl">
+          <div className="sketch-card outline absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-3 shadow-2xl sm:p-4">
             <img
               src="/pinned/sketch.svg"
               alt="Sketch of a sneaker"
-              className="h-[min(46vh,360px)] w-auto max-w-full"
+              className="h-[min(38vh,280px)] w-auto max-w-full sm:h-[min(46vh,360px)]"
               loading="lazy"
               decoding="async"
             />
           </div>
 
-          <div className="result-thumb outline absolute left-[16%] top-[26%] overflow-hidden rounded-xl">
+          <div className="result-thumb outline thumb-a absolute overflow-hidden rounded-xl">
             <img
               src="/pinned/result-1.svg"
               alt="Generated sneaker result"
-              className="w-32 sm:w-40"
+              className="w-24 sm:w-40"
             />
           </div>
-          <div className="result-thumb outline absolute bottom-[22%] left-[18%] overflow-hidden rounded-xl">
+          <div className="result-thumb outline thumb-b absolute overflow-hidden rounded-xl">
             <img
               src="/pinned/result-2.svg"
               alt="Generated sneaker result"
-              className="w-36 sm:w-44"
+              className="w-28 sm:w-44"
             />
           </div>
-          <div className="result-thumb outline absolute right-[16%] top-[34%] overflow-hidden rounded-xl">
+          <div className="result-thumb outline thumb-c absolute overflow-hidden rounded-xl">
             <img
               src="/pinned/result-3.svg"
               alt="Generated sneaker result"
-              className="w-32 sm:w-40"
+              className="w-24 sm:w-40"
             />
           </div>
         </div>

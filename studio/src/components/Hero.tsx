@@ -123,7 +123,10 @@ export function Hero() {
       return
     }
 
-    gsap.set([words, subheading, buttons, phone], { opacity: 0, y: 36 })
+    gsap.set([words, subheading, buttons, phone], {
+      opacity: 0,
+      y: window.matchMedia('(max-width: 767px)').matches ? 24 : 36,
+    })
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })

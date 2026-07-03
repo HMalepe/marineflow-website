@@ -8,7 +8,7 @@ type ToolCardProps = {
 export function ToolCard({ card }: ToolCardProps) {
   return (
     <article
-      className={`tool-card group relative overflow-hidden rounded-2xl bg-offwhite transition duration-300 hover:scale-[1.02] hover:shadow-[0_24px_60px_-20px_rgba(0,0,0,0.35)] motion-reduce:transition-none motion-reduce:hover:scale-100 ${card.rowSpan}`}
+      className={`tool-card group relative overflow-hidden rounded-2xl bg-offwhite transition duration-300 hover:shadow-[0_24px_60px_-20px_rgba(0,0,0,0.35)] motion-reduce:transition-none md:hover:scale-[1.02] ${card.rowSpan}`}
     >
       <div className="relative h-full min-h-[220px] w-full md:min-h-[240px]">
         <LazyVideo src={card.video} poster={card.poster} />

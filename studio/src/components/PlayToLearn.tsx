@@ -1,7 +1,11 @@
 import { useLayoutEffect, useRef } from 'react'
 import { gsap } from '../lib/gsap'
+import { getScrollProfile } from '../lib/scrollConfig'
 import { refreshScrollTriggers } from '../lib/scrollTriggerLifecycle'
-import { usePrefersReducedMotion } from '../providers/SmoothScroll'
+import {
+  usePrefersReducedMotion,
+  useScrollReady,
+} from '../providers/SmoothScroll'
 import { LazyVideo } from './LazyVideo'
 
 const PHONE_VIDEO =
@@ -12,23 +16,55 @@ export function PlayToLearn() {
   const ringRef = useRef<HTMLImageElement>(null)
   const phoneRef = useRef<HTMLDivElement>(null)
   const reducedMotion = usePrefersReducedMotion()
+  const scrollReady = useScrollReady()
 
   useLayoutEffect(() => {
     const section = sectionRef.current
     const ring = ringRef.current
     const phone = phoneRef.current
-    if (!section || !ring || !phone) return
+    if (!section || !ring || !phone || !scrollReady) return
+
+    const profile = getScrollProfile()
 
     const ctx = gsap.context(() => {
       if (reducedMotion) {
-        gsap.set(ring, { xPercent: 18, yPercent: 8, rotation: 10, autoAlpha: 1 })
+        gsap.set(ring, { xPercent: 12, yPercent: 6, rotation: 6, autoAlpha: 1 })
         gsap.set(phone, { y: 0, autoAlpha: 1 })
         refreshScrollTriggers()
         return
       }
 
-      gsap.set(ring, { xPercent: -10, yPercent: -35, rotation: -14, autoAlpha: 1 })
-      gsap.set(phone, { y: 120, autoAlpha: 0.75 })
+      if (profile.mobile) {
+        gsap.set(ring, {
+          xPercent: 8,
+          yPercent: 2,
+          rotation: 4,
+          autoAlpha: 1,
+          force3D: true,
+        })
+        gsap.set(phone, { y: 48, autoAlpha: 0.88, force3D: true })
+
+        gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 88%',
+            end: 'center 55%',
+            scrub: profile.scrub,
+            invalidateOnRefresh: true,
+          },
+        }).to(phone, { y: 0, autoAlpha: 1, ease: 'none' }, 0)
+
+        return
+      }
+
+      gsap.set(ring, {
+        xPercent: -10,
+        yPercent: -35,
+        rotation: -14,
+        autoAlpha: 1,
+        force3D: true,
+      })
+      gsap.set(phone, { y: 120, autoAlpha: 0.75, force3D: true })
 
       gsap
         .timeline({
@@ -36,7 +72,7 @@ export function PlayToLearn() {
             trigger: section,
             start: 'top bottom',
             end: 'bottom top',
-            scrub: 1,
+            scrub: profile.scrub,
             invalidateOnRefresh: true,
           },
         })
@@ -51,25 +87,25 @@ export function PlayToLearn() {
     requestAnimationFrame(() => refreshScrollTriggers())
 
     return () => ctx.revert()
-  }, [reducedMotion])
+  }, [reducedMotion, scrollReady])
 
   return (
     <section
       id="learn"
       ref={sectionRef}
-      className="relative -mt-24 min-h-screen overflow-x-clip bg-coral"
+      className="relative z-10 -mt-12 min-h-screen overflow-x-clip bg-coral sm:-mt-20 md:-mt-24"
     >
       <img
         ref={ringRef}
         src="/play/gold-ring.svg"
         alt=""
-        className="play-ring pointer-events-none absolute left-[58%] top-0 z-30 w-[min(52vw,360px)] max-w-full -translate-x-1/2 will-change-transform motion-reduce:will-change-auto"
+        className="play-ring pointer-events-none absolute left-1/2 top-0 z-30 w-[min(70vw,280px)] max-w-full -translate-x-1/2 sm:left-[58%] sm:w-[min(52vw,360px)]"
         loading="lazy"
         decoding="async"
         aria-hidden
       />
 
-      <div className="relative z-10 flex min-h-screen flex-col overflow-x-clip px-6 pb-8 pt-28 sm:px-10 sm:pt-32">
+      <div className="relative z-10 flex min-h-screen flex-col overflow-x-clip px-6 pb-8 pt-24 sm:px-10 sm:pt-32">
         <div className="flex-1">
           <h2 className="text-play text-on-coral w-full text-ink">Play to learn</h2>
 
@@ -86,7 +122,7 @@ export function PlayToLearn() {
 
         <div
           ref={phoneRef}
-          className="play-phone relative mx-auto mt-8 w-full max-w-[min(92vw,420px)] will-change-transform motion-reduce:will-change-auto sm:mt-0"
+          className="play-phone relative mx-auto mt-8 w-full max-w-[min(88vw,380px)] sm:mt-0 sm:max-w-[min(92vw,420px)]"
         >
           <div className="relative overflow-hidden rounded-[2.25rem] border-[9px] border-ink bg-ink shadow-[0_40px_100px_-30px_rgba(0,0,0,0.45)]">
             <div className="absolute left-1/2 top-2.5 z-10 h-4 w-20 -translate-x-1/2 rounded-full bg-ink" />

@@ -6,16 +6,32 @@
   html {
     @apply antialiased;
     overflow-x: clip;
+    height: auto;
   }
 
   html:not([data-reduced-motion]):not([data-lenis-active]) {
     scroll-behavior: smooth;
   }
 
+  html[data-lenis-active] {
+    height: auto;
+  }
+
+  html[data-lenis-active] body {
+    height: auto;
+    overflow: hidden;
+  }
+
+  html[data-scroll-mode='native'] {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   body {
     @apply bg-paper font-sans text-ink;
     font-size: 16px;
     overflow-x: clip;
+    min-height: 100%;
   }
 
   #root {
@@ -64,6 +80,17 @@
 
   .text-on-lime {
     @apply text-ink;
+  }
+}
+
+/* Pinned section: contain paint on mobile to reduce scroll jank */
+@media (pointer: coarse) {
+  .pinned-track {
+    contain: layout style;
+  }
+
+  .pin-target {
+    transform: translateZ(0);
   }
 }
 

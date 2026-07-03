@@ -1,4 +1,5 @@
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
+import { refreshScrollTriggers } from '../lib/scrollTriggerLifecycle'
 
 const FAQ_ITEMS = [
   {
@@ -85,6 +86,11 @@ export function Faq() {
   const toggleItem = (index: number) => {
     setOpenItems((prev) => ({ ...prev, [index]: !prev[index] }))
   }
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => refreshScrollTriggers())
+    return () => cancelAnimationFrame(id)
+  }, [openItems])
 
   return (
     <section id="faq" className="bg-paper px-6 py-24">

@@ -18,6 +18,58 @@
   pointer-events: none;
 }
 
+/* Mobile thumb positions — avoid overlap glitches in dark canvas */
+.thumb-a {
+  left: 10%;
+  top: 22%;
+}
+
+.thumb-b {
+  bottom: 18%;
+  left: 12%;
+}
+
+.thumb-c {
+  right: 10%;
+  top: 30%;
+}
+
+@media (min-width: 640px) {
+  .thumb-a {
+    left: 16%;
+    top: 26%;
+  }
+
+  .thumb-b {
+    bottom: 22%;
+    left: 18%;
+  }
+
+  .thumb-c {
+    right: 16%;
+    top: 34%;
+  }
+}
+
+/* Slide chip hint — CSS only so scrub timeline is not fighting yoyo */
+@keyframes slide-hint {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(8px);
+  }
+}
+
+.slide-chip {
+  animation: slide-hint 1.4s ease-in-out infinite;
+}
+
+html[data-reduced-motion] .slide-chip {
+  animation: none;
+}
+
 /* Full border when custom properties cannot animate (older Safari/Firefox) */
 @supports not (background: paint(id)) {
   .outline::after {

@@ -1,20 +1,31 @@
 import { useLayoutEffect, useRef } from 'react'
 import { WILD_SHOWCASE_CARDS } from '../data/wildShowcase'
 import { gsap, ScrollTrigger } from '../lib/gsap'
+import {
+  getScrollProfile,
+  revealIfInView,
+} from '../lib/scrollConfig'
 import { refreshScrollTriggers } from '../lib/scrollTriggerLifecycle'
-import { usePrefersReducedMotion } from '../providers/SmoothScroll'
+import {
+  usePrefersReducedMotion,
+  useScrollReady,
+} from '../providers/SmoothScroll'
 import { BeforeAfterCard, VideoCreatorCard } from './WildShowcaseCard'
 
 export function InTheWild() {
   const sectionRef = useRef<HTMLElement>(null)
   const reducedMotion = usePrefersReducedMotion()
+  const scrollReady = useScrollReady()
 
   useLayoutEffect(() => {
     const section = sectionRef.current
-    if (!section) return
+    if (!section || !scrollReady) return
 
     const cards = section.querySelectorAll<HTMLElement>('.wild-card')
     if (!cards.length) return
+
+    const profile = getScrollProfile()
+    const enterStart = profile.mobile ? 'top 92%' : 'top 85%'
 
     const ctx = gsap.context(() => {
       if (reducedMotion) {
@@ -22,28 +33,30 @@ export function InTheWild() {
         return
       }
 
-      gsap.set(cards, { autoAlpha: 0, y: 28 })
+      gsap.set(cards, { autoAlpha: 0, y: profile.mobile ? 20 : 28 })
 
       ScrollTrigger.batch(cards, {
         onEnter: (batch) => {
           gsap.to(batch, {
             autoAlpha: 1,
             y: 0,
-            duration: 0.7,
+            duration: profile.mobile ? 0.55 : 0.7,
             ease: 'power3.out',
-            stagger: 0.1,
-            overwrite: true,
+            stagger: profile.mobile ? 0.07 : 0.1,
+            overwrite: 'auto',
           })
         },
-        start: 'top 85%',
+        start: enterStart,
         once: true,
       })
+
+      revealIfInView(cards, profile.mobile ? 0.92 : 0.88)
     }, section)
 
     requestAnimationFrame(() => refreshScrollTriggers())
 
     return () => ctx.revert()
-  }, [reducedMotion])
+  }, [reducedMotion, scrollReady])
 
   return (
     <section id="wild" ref={sectionRef} className="bg-paper px-6 py-24">
