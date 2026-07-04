@@ -1,3 +1,5 @@
+import { WILD_BEFORE_AFTER, WILD_POSTERS } from '../lib/assets'
+
 export type VideoShowcaseCard = {
   type: 'video'
   id: string
@@ -25,7 +27,7 @@ export const WILD_SHOWCASE_CARDS: WildShowcaseCard[] = [
     id: 'lena-jiao',
     name: 'Lena Jiao',
     subtitle: 'Loire Jewelry',
-    poster: '/wild/posters/lena-jewelry.svg',
+    poster: WILD_POSTERS.lenaJewelry,
     video:
       'https://assets.mixkit.co/videos/preview/mixkit-woman-modeling-a-necklace-39881-large.mp4',
     minHeight: 'min-h-[420px]',
@@ -33,8 +35,8 @@ export const WILD_SHOWCASE_CARDS: WildShowcaseCard[] = [
   {
     type: 'before-after',
     id: 'sneaker-render',
-    before: '/wild/before/sneaker-sketch.svg',
-    after: '/wild/after/sneaker-render.svg',
+    before: WILD_BEFORE_AFTER.sneakerSketch,
+    after: WILD_BEFORE_AFTER.sneakerRender,
     alt: 'Sneaker sketch transformed into a product render',
     minHeight: 'min-h-[340px]',
   },
@@ -43,7 +45,7 @@ export const WILD_SHOWCASE_CARDS: WildShowcaseCard[] = [
     id: 'marcus-chen',
     name: 'Marcus Chen',
     subtitle: 'Studio Koto',
-    poster: '/wild/posters/studio-koto.svg',
+    poster: WILD_POSTERS.studioKoto,
     video:
       'https://assets.mixkit.co/videos/preview/mixkit-photographer-taking-pictures-of-a-model-34402-large.mp4',
     minHeight: 'min-h-[360px]',
@@ -51,8 +53,8 @@ export const WILD_SHOWCASE_CARDS: WildShowcaseCard[] = [
   {
     type: 'before-after',
     id: 'floor-plan',
-    before: '/wild/before/floor-plan-2d.svg',
-    after: '/wild/after/floor-plan-3d.svg',
+    before: WILD_BEFORE_AFTER.floorPlan2d,
+    after: WILD_BEFORE_AFTER.floorPlan3d,
     alt: '2D floor plan converted to a 3D render',
     minHeight: 'min-h-[400px]',
   },
@@ -61,7 +63,7 @@ export const WILD_SHOWCASE_CARDS: WildShowcaseCard[] = [
     id: 'amara-osei',
     name: 'Amara Osei',
     subtitle: 'Glow Co',
-    poster: '/wild/posters/glow-co.svg',
+    poster: WILD_POSTERS.glowCo,
     video:
       'https://assets.mixkit.co/videos/preview/mixkit-woman-applying-makeup-in-front-of-a-mirror-42876-large.mp4',
     minHeight: 'min-h-[380px]',
@@ -69,8 +71,8 @@ export const WILD_SHOWCASE_CARDS: WildShowcaseCard[] = [
   {
     type: 'before-after',
     id: 'portrait-grade',
-    before: '/wild/before/portrait-before.svg',
-    after: '/wild/after/portrait-after.svg',
+    before: WILD_BEFORE_AFTER.portraitBefore,
+    after: WILD_BEFORE_AFTER.portraitAfter,
     alt: 'Casual portrait enhanced into editorial photography',
     minHeight: 'min-h-[360px]',
   },

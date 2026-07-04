@@ -6,6 +6,7 @@ import {
   usePrefersReducedMotion,
   useScrollReady,
 } from '../providers/SmoothScroll'
+import { PLAY } from '../lib/assets'
 import { LazyVideo } from './LazyVideo'
 
 const PHONE_VIDEO =
@@ -129,7 +130,7 @@ export function PlayToLearn() {
             <div className="relative aspect-[9/16] w-full overflow-hidden bg-ink">
               <LazyVideo
                 src={PHONE_VIDEO}
-                poster="/play/phone-poster.svg"
+                poster={PLAY.phonePoster}
               />
             </div>
           </div>

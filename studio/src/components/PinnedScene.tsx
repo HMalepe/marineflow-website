@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
-import { DESK_BG } from '../lib/assets'
+import { DESK_BG, PINNED, PROMPT_INSPIRATION } from '../lib/assets'
 import { gsap } from '../lib/gsap'
 import {
   getScrollProfile,
@@ -83,7 +83,7 @@ function PromptScreen() {
             </div>
             <div className="h-16 w-16 overflow-hidden rounded-xl bg-offwhite">
               <img
-                src="/pinned/sketch.svg"
+                src={PROMPT_INSPIRATION}
                 alt=""
                 className="h-full w-full object-cover"
               />
@@ -106,7 +106,7 @@ function SlideScreen() {
 
       <div className="absolute inset-x-4 top-24 overflow-hidden rounded-2xl border border-paper/10 bg-paper/5">
         <img
-          src="/pinned/result-1.svg"
+          src={PINNED.result1}
           alt=""
           className="aspect-square w-full object-cover"
         />
@@ -278,7 +278,7 @@ export function PinnedScene() {
         >
           <div className="sketch-card outline absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-3 shadow-2xl sm:p-4">
             <img
-              src="/pinned/sketch.svg"
+              src={PINNED.sketch}
               alt="Sketch of a sneaker"
               className="h-[min(38vh,280px)] w-auto max-w-full sm:h-[min(46vh,360px)]"
               loading="lazy"
@@ -288,21 +288,21 @@ export function PinnedScene() {
 
           <div className="result-thumb outline thumb-a absolute overflow-hidden rounded-xl">
             <img
-              src="/pinned/result-1.svg"
+              src={PINNED.result1}
               alt="Generated sneaker result"
               className="w-24 sm:w-40"
             />
           </div>
           <div className="result-thumb outline thumb-b absolute overflow-hidden rounded-xl">
             <img
-              src="/pinned/result-2.svg"
+              src={PINNED.result2}
               alt="Generated sneaker result"
               className="w-28 sm:w-44"
             />
           </div>
           <div className="result-thumb outline thumb-c absolute overflow-hidden rounded-xl">
             <img
-              src="/pinned/result-3.svg"
+              src={PINNED.result3}
               alt="Generated sneaker result"
               className="w-24 sm:w-40"
             />
